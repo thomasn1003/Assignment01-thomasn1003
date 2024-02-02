@@ -1,17 +1,16 @@
-
-
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
-extern unsigned long helloworld();
+extern unsigned long average();
 
-int main(int argc, const char * argv[])
+int main(int argc, const char* argv[]) 
 {
-    printf("Welcome to Assignment 1 maintained by Thomas Nguyen\n");
-    unsigned long count = 0;
-    count = average();
-    printf(count);
-    printf("The driver has received this number and will keep it for future use.\n")
+    printf("Welcome to Estimating Driving time maintained by Thomas Nguyen\n");
+    double  result = 0;
+    result = average();    
+    printf("The driver has received this number %lf and will keep it for future use.\n",  result);
     printf("Have a great day.\n\n");
-    printf("A zero will be sent to the operating system as a signal of a successful execution");
-    
+    printf("A zero will be sent to the operating system as a signal of a successful execution.\n\n");
+    return 0;
 }
