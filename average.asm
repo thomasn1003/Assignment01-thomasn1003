@@ -6,16 +6,16 @@ extern stdin
 
 extern strlen
 
+extern scanf
+
 global average
 
 name_string_size equ 48
 
-
-
 segment .data
     prompt_your_name db "Please enter your first and last names: ", 0
     prompt_your_title db "Please enter your title such as Lieutenant, Chief, Mr, Ms, Influencer, Chairman, Freshman, Foreman, Project Leader, etc: ", 0
-    thank_you db "Thank you %s%s", 10,0
+    thank_you db "Thank you %s %s", 0ah, 0ah, 0
 
     prompt_miles_fullerton_santaana db "Enter the number of miles travled from Fullerton to Santa Ana: ", 0
     prompt_average_speed_fullerton_santaana db "Enter your average speed during that leg of the trip: ",0
@@ -28,9 +28,15 @@ segment .data
 
     processing_msg db 0ah, "The inputted data are being processed ", 0ah, 0ah, 0
 
-    total_distances db "The total distance traveled is %1.8lf miles. ", 10, 0
-    total_time db "The time of the trip is %1.8lf hours", 10, 0
-    average_speed db "The average speed during this trip is %1.8lf mph. ", 0ah, 0ah, 0
+    result_total_distance db "The total distance traveled is %0.2lf miles. ", 10, 0
+    result_total_time db "The time of the trip is %1.8lf hours", 10, 0
+    result_average_speed db "The average speed during this trip is %1.5lf mph. ", 0ah, 0ah, 0
+
+    number_input db "%lf", 0
+    amount_of_speeds dq 3.0
+    total_distance dq 0.0
+    total_time dq 0.0
+    average_speed dq 0.0
 
 segment .bss
     align 64
@@ -38,17 +44,7 @@ segment .bss
 
     user_name resb name_string_size
     user_title resb name_string_size
-    number_input resb name_string_size
-    miles1 resq 1
-    speed1 resq 1
-    miles2 resq 1
-    speed2 resq 1
-    miles3 resq 1
-    speed3 resq 1
-    total_distance resq 1
-    time_of_trip resq 1
-    average_speed_value resq 1
-
+    
 segment .text
 
 average:
@@ -88,6 +84,12 @@ mov rsi, name_string_size
 mov rdx, [stdin]
 call fgets
 
+;Remove newline
+mov rax, 0
+mov rdi, user_name
+call strlen
+mov [user_name+rax-1], byte 0
+
 ;Output prompt for your title
 mov rax, 0
 mov rdi, prompt_your_title
@@ -100,12 +102,21 @@ mov rsi, name_string_size
 mov rdx, [stdin]
 call fgets
 
+;Remove newline
+mov rax, 0
+mov rdi, user_title
+call strlen
+mov [user_title+rax-1], byte 0
+
 ;Output a personalized thank you message 
 mov rax, 0
 mov rdi, thank_you
 mov rsi, user_title
 mov rdx, user_name
 call printf
+
+
+;Fullerton to Santa Ana
 
 
 ;Output prompt miles traveled(Fullerton to Santa Ana)
@@ -116,12 +127,21 @@ call printf
 ;Input miles traveled (Fullerton to Santa Ana)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [miles1], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;all fgets
+call scanf
+movsd xmm8, [rsp]
+pop r9
+pop r8
+
+;Addition of first distance
+mov rax, 0 
+movsd xmm14, qword [total_distance]
+addsd xmm14, xmm8
+
 
 ;Output prompt average speed(Fullerton to Santa Ana)
 mov rax, 0
@@ -131,13 +151,26 @@ call printf
 ;Input average speed(Fullerton to Santa Ana)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [speed1], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;call fgets
+call scanf
+movsd xmm9, [rsp]
+pop r9
+pop r8
 
+;Addition of first average speed
+mov rax, 0
+movsd xmm15, qword[average_speed]
+addsd xmm15, xmm9
+
+
+
+
+
+;Santa Ana to Long Beach
 
 ;Output prompt for miles traveled (Santa Ana to Long Beach)
 mov rax, 0
@@ -147,12 +180,19 @@ call printf
 ;Input miles traveled (Santa Ana to Long Beach)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [miles2], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;call fgets
+call scanf
+movsd xmm10, [rsp]
+pop r9
+pop r8
+
+;Addition of second distance
+mov rax, 0
+addsd xmm14, xmm10
 
 ;Output prompt average speed(Santa Ana to Long Beach)
 mov rax, 0
@@ -162,12 +202,24 @@ call printf
 ;Input average speed(Santa Ana to Long Beach)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [speed2], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;call fgets
+call scanf
+movsd xmm11, [rsp]
+pop r9
+pop r8
+
+;Addition of second speed 
+mov rax, 0
+addsd xmm15, xmm11
+
+
+
+
+
 
 ;Output prompt for miles traveled (Long Beach to Fullerton)
 mov rax, 0
@@ -177,12 +229,21 @@ call printf
 ;Input miles traveled (Long Beach to Fullerton)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [miles3], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;call fgets
+call scanf 
+movsd xmm12, [rsp]
+pop r9
+pop r8
+
+;Addition of third distance
+mov rax, 0
+addsd xmm14, xmm12
+
+
 
 ;Output prompt average speed(Long Beach to Fullerton)
 mov rax, 0
@@ -192,64 +253,68 @@ call printf
 ;Input average speed(Long Beach to Fullerton)
 mov rax, 0
 mov rdi, number_input
-mov rsi, name_string_size
-mov rdx, [stdin]
-call fgets
-mov rdi, number_input
-movq xmm10, [rdi]
-movsd [speed3], xmm10
+push qword -9
+push qword -9
+mov rsi, rsp
+;mov rdx, [stdin]
+;call fgets
+call scanf
+movsd xmm13, [rsp]
+pop r9
+pop r8
+
+;Addition of third speed 
+mov rax, 0
+addsd xmm15, xmm13
+
+
 
 ;Processing message 
 mov rax, 0
 mov rdi, processing_msg
 call printf
 
-;Calculate total distance
-mov rax, 0
-movsd xmm10, [miles1]
-addsd xmm10, [miles2]
-addsd xmm10, [miles3]
-movsd [total_distance], xmm10
 
-;Calculate time of the trip
-movsd xmm2, [speed1]
-divsd xmm1, xmm2
-movsd xmm3, [speed2]
-divsd xmm1, xmm3
-movsd xmm4, [speed3]
-divsd xmm1, xmm4
-movsd [time_of_trip], xmm1
-
-; Calculate average speed
-movsd xmm5, [total_distance]
-divsd xmm5, [time_of_trip]
-movsd [average_speed_value], xmm5
 
 ; Output total distance
-mov rax, 0
-mov rdi, total_distances
-movq xmm10, [total_distance]
+mov rax, 1
+mov rdi, result_total_distance
+movsd xmm0, xmm14
 call printf
 
-; Output time of the trip
+;Calculate total time
 mov rax, 0
-mov rdi, total_time
-movq xmm10, [time_of_trip]
+movsd xmm7, qword[amount_of_speeds]
+divsd xmm15, xmm7
+movsd xmm6, qword[total_time]
+movsd xmm6, xmm14
+divsd xmm14, xmm15
+
+;Output total time
+mov rax, 1
+mov rdi, result_total_time
+movsd xmm0, xmm14
 call printf
+
 
 ; Output average speed
-mov rax, 0
-mov rdi, average_speed
-movq xmm10, [average_speed_value]
+mov rax, 1
+mov rdi, result_average_speed
+movsd xmm0, xmm15
 call printf
+
+push qword 0
+movsd [rsp], xmm15
+;Return average speed to driver.c
+;movsd xmm0, xmm15
 
 ;Restore the values to non-GPRs
 mov rax,7
 mov rdx,0
 xrstor [backup_storage_area]
 
-;Send back the number of characters
-mov rax,r15
+movsd xmm0, [rsp]
+pop rax
 
 ;Restore the GPRs
 popf
