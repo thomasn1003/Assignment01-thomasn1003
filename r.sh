@@ -2,8 +2,6 @@
 #Author: Thomas Nguyen
 #This file is the script file that accompanies the "driver.c" program.
 
-rm * .o
-rm * .out
 
 nasm -f elf64  -l average.lis -o average.o average.asm
 
